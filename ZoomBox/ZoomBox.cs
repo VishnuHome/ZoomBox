@@ -217,9 +217,9 @@ namespace NetEti.CustomControls
 
         private void InitAspects()
         {
-            this._scrollViewer = (ScrollViewer)this.Template.FindName("scrollViewer", this);
-            this._scaleTransform = (ScaleTransform)this.Template.FindName("scaleTransform", this);
-            this._grid = (Grid)this.Template.FindName("grid", this);
+            this._scrollViewer = (ScrollViewer)this.Template?.FindName("scrollViewer", this);
+            this._scaleTransform = (ScaleTransform)this.Template?.FindName("scaleTransform", this);
+            this._grid = (Grid)this.Template?.FindName("grid", this);
             if (this._scrollViewer != null)
             {
                 this._scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
@@ -261,7 +261,9 @@ namespace NetEti.CustomControls
         }
 
         /// <summary>
-        /// Rechte Maustaste: setzt alles auf Anfang - kein Zoom, Position links oben.
+        /// Rechte Maustaste: 
+        ///   zusammen mit Strg: verkleinert alles, sodass alles im Fenster sichtbar ist.
+        ///   zusammen mit Umschalt: setzt alles auf Anfang - kein Zoom, Position links oben.
         /// </summary>
         /// <param name="sender">Element, in dem das Event zuerst auftritt.</param>
         /// <param name="e">Weitergehende Informationen zum Event.</param>
@@ -273,7 +275,10 @@ namespace NetEti.CustomControls
             }
             else
             {
-                this.reset();
+                if ((Keyboard.Modifiers & ModifierKeys.Shift) > 0)
+                {
+                    this.reset();
+                }
             }
         }
 
