@@ -64,6 +64,26 @@ namespace NetEti.CustomControls
         }
 
         /// <summary>
+        /// Holt oder setzt den minimalen Scale-Faktor.
+        /// Der minimale Scale Faktor gibt an, wie stark Elemente verkleinert werden können.
+        /// Dadurch wird indirekt auch die maximale Anzahl Elemente begrenzt, die sich
+        /// gleichzeitig auf dem Bildschirm befinden können. Bei sehr großen Jobs mit sehr
+        /// vielen Controls ist das für die Performance der WPF-Anwendung entscheidend.
+        /// Default: 0.3.
+        /// </summary>
+        public double MinimalScaleFactor
+        {
+            get
+            {
+                return this._minimalScaleFactor;
+            }
+            set
+            {
+                this._minimalScaleFactor = value;
+            }
+        }
+
+        /// <summary>
         /// Holt oder setzt die horizontale Scrollweite in geräteunabhängigen Pixeln.
         /// Default: 0.0.
         /// </summary>
@@ -145,6 +165,14 @@ namespace NetEti.CustomControls
         /// <param name="newScaleY">Der vertikale Vergößerungs-/Verkleinerungsfaktor (Originalgröße = 1.0).</param>
         public void SetScale(double newScaleX, double newScaleY)
         {
+            if (newScaleX < this.MinimalScaleFactor)
+            {
+                newScaleX = this.MinimalScaleFactor;
+            }
+            if (newScaleY < this.MinimalScaleFactor)
+            {
+                newScaleY = this.MinimalScaleFactor;
+            }
             if (this._scaleTransform != null)
             {
                 this._scaleTransform.ScaleX = newScaleX;
@@ -181,6 +209,7 @@ namespace NetEti.CustomControls
             //this.Loaded += this.loaded; // feuert nicht bei Browser-Page.
             this._initAspectsDone = false;
             this._presetScaleTransform = null;
+            this.MinimalScaleFactor = 0.3;
             this.LayoutUpdated += ZoomBox_LayoutUpdated;
         }
 
@@ -191,6 +220,7 @@ namespace NetEti.CustomControls
         private Point? _lastCenterPositionOnTarget;
         private Point? lastMousePositionOnTarget;
         private bool _initAspectsDone;
+        private double _minimalScaleFactor;
 
         private void initialized(object sender, System.EventArgs e)
         {
