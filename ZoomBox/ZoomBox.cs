@@ -302,12 +302,14 @@ namespace NetEti.CustomControls
             if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
             {
                 this.transformAllIntoView();
+                e.Handled = true;
             }
             else
             {
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) > 0)
                 {
                     this.reset();
+                    e.Handled = true;
                 }
             }
         }
