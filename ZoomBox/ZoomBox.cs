@@ -275,7 +275,7 @@ namespace NetEti.CustomControls
             if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
             {
                 this.transform(sender, e);
-                e.Handled = true;
+                // 23.10.2023 Nagel e.Handled = true;
             }
             else
             {
@@ -368,7 +368,7 @@ namespace NetEti.CustomControls
                 this._scrollViewer.LineRight();
                 this._scrollViewer.LineRight();
             }
-            e.Handled = true;
+            // 23.10.2023 Nagel e.Handled = true;
         }
 
         // Scrollt in der ZoomBox horizontal. Wird über Mousewheel ausgelöst.
@@ -386,7 +386,7 @@ namespace NetEti.CustomControls
                 this._scrollViewer.LineDown();
                 this._scrollViewer.LineDown();
             }
-            e.Handled = true;
+            // 23.10.2023 Nagel e.Handled = true;
         }
 
         private void OnScrollViewerScrollChanged(object sender, ScrollChangedEventArgs e)
