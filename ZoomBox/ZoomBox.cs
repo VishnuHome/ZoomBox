@@ -247,7 +247,7 @@ namespace NetEti.CustomControls
 
         private void InitAspects()
         {
-            this._scrollViewer = (ScrollViewer)this.Template?.FindName("scrollViewer", this);
+            this._scrollViewer = (ScrollViewer)this.Template?.FindName("zoomBoxScrollViewer", this);
             this._scaleTransform = (ScaleTransform)this.Template?.FindName("scaleTransform", this);
             this._grid = (Grid)this.Template?.FindName("grid", this);
             if (this._scrollViewer != null)
@@ -368,10 +368,10 @@ namespace NetEti.CustomControls
                 this._scrollViewer.LineRight();
                 this._scrollViewer.LineRight();
             }
-            // 23.10.2023 Nagel e.Handled = true;
+            e.Handled = false; // 18.12.2022 Nagel
         }
 
-        // Scrollt in der ZoomBox horizontal. Wird über Mousewheel ausgelöst.
+        // Scrollt in der ZoomBox vertikal. Wird über Mousewheel ausgelöst.
         private void verticalScroll(MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
@@ -386,7 +386,7 @@ namespace NetEti.CustomControls
                 this._scrollViewer.LineDown();
                 this._scrollViewer.LineDown();
             }
-            // 23.10.2023 Nagel e.Handled = true;
+            e.Handled = false; // 18.12.2022 Nagel
         }
 
         private void OnScrollViewerScrollChanged(object sender, ScrollChangedEventArgs e)

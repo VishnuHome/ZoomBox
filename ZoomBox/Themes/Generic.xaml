@@ -6,7 +6,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type local:ZoomBox}">
-          <ScrollViewer x:Name="scrollViewer"
+          <ScrollViewer x:Name="zoomBoxScrollViewer"
                           VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}"
                           HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}">
             <Grid Name="grid" RenderTransformOrigin="0.5,0.5">
