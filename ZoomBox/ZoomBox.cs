@@ -91,11 +91,18 @@ namespace NetEti.CustomControls
         {
             get
             {
-                return this._scrollViewer.HorizontalOffset;
+                if (this._scrollViewer != null)
+                {
+                    return this._scrollViewer.HorizontalOffset;
+                }
+                return 0d;
             }
             set
             {
-                this._scrollViewer.ScrollToHorizontalOffset(value);
+                if (this._scrollViewer != null)
+                {
+                    this._scrollViewer.ScrollToHorizontalOffset(value);
+                }
             }
         }
 
@@ -107,11 +114,18 @@ namespace NetEti.CustomControls
         {
             get
             {
-                return this._scrollViewer.VerticalOffset;
+                if (this._scrollViewer != null)
+                {
+                    return this._scrollViewer.VerticalOffset;
+                }
+                return 0d;
             }
             set
             {
-                this._scrollViewer.ScrollToVerticalOffset(value);
+                if (this._scrollViewer != null)
+                {
+                    this._scrollViewer.ScrollToVerticalOffset(value);
+                }
             }
         }
 
@@ -122,7 +136,7 @@ namespace NetEti.CustomControls
         {
             get
             {
-                return this._scrollViewer.ComputedHorizontalScrollBarVisibility == Visibility.Visible;
+                return this._scrollViewer?.ComputedHorizontalScrollBarVisibility == Visibility.Visible;
             }
         }
 
@@ -133,7 +147,7 @@ namespace NetEti.CustomControls
         {
             get
             {
-                return this._scrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible;
+                return this._scrollViewer?.ComputedVerticalScrollBarVisibility == Visibility.Visible;
             }
         }
 
@@ -143,7 +157,7 @@ namespace NetEti.CustomControls
         /// Liefert die aktuellen Zoom-Einstellungen der ZoomBox.
         /// </summary>
         /// <returns>ScaleTransform mit horizontalem und vertikalem Vergößerungs-/Verkleinerungsfaktor (Originalgröße jeweils 1.0)</returns>
-        public ScaleTransform GetScale()
+        public ScaleTransform? GetScale()
         {
             return this._scaleTransform;
         }
@@ -213,10 +227,10 @@ namespace NetEti.CustomControls
             this.LayoutUpdated += ZoomBox_LayoutUpdated;
         }
 
-        private ScrollViewer _scrollViewer;
-        private ScaleTransform _scaleTransform;
-        private ScaleTransform _presetScaleTransform;
-        private Grid _grid;
+        private ScrollViewer? _scrollViewer;
+        private ScaleTransform? _scaleTransform;
+        private ScaleTransform? _presetScaleTransform;
+        private Grid? _grid;
         private Point? _lastCenterPositionOnTarget;
         private Point? lastMousePositionOnTarget;
         private bool _initAspectsDone;
@@ -232,7 +246,7 @@ namespace NetEti.CustomControls
             // this.InitAspects(); // feuert nicht bei Browser-Page.
         }
 
-        private void ZoomBox_LayoutUpdated(object sender, System.EventArgs e)
+        private void ZoomBox_LayoutUpdated(object? sender, System.EventArgs e)
         {
             if (!this._initAspectsDone)
             {
@@ -247,9 +261,9 @@ namespace NetEti.CustomControls
 
         private void InitAspects()
         {
-            this._scrollViewer = (ScrollViewer)this.Template?.FindName("zoomBoxScrollViewer", this);
-            this._scaleTransform = (ScaleTransform)this.Template?.FindName("scaleTransform", this);
-            this._grid = (Grid)this.Template?.FindName("grid", this);
+            this._scrollViewer = (ScrollViewer)(this.Template.FindName("zoomBoxScrollViewer", this));
+            this._scaleTransform = (ScaleTransform)(this.Template.FindName("scaleTransform", this));
+            this._grid = (Grid)this.Template.FindName("grid", this);
             if (this._scrollViewer != null)
             {
                 this._scrollViewer.ScrollChanged += OnScrollViewerScrollChanged;
@@ -326,13 +340,19 @@ namespace NetEti.CustomControls
             {
                 //this._slider.Value += 1;
                 //this.setNewScale(this._scaleTransform.ScaleX + .2, this._scaleTransform.ScaleY + .2);
-                this.SetScale(this._scaleTransform.ScaleX * 1.2, this._scaleTransform.ScaleY * 1.2);
+                if (this._scaleTransform != null)
+                {
+                    this.SetScale(this._scaleTransform.ScaleX * 1.2, this._scaleTransform.ScaleY * 1.2);
+                }
             }
             if (e.Delta < 0)
             {
                 //this._slider.Value -= 1;
                 //this.setNewScale(this._scaleTransform.ScaleX - .2, this._scaleTransform.ScaleY - .2);
-                this.SetScale(this._scaleTransform.ScaleX / 1.2, this._scaleTransform.ScaleY / 1.2);
+                if (this._scaleTransform != null)
+                {
+                    this.SetScale(this._scaleTransform.ScaleX / 1.2, this._scaleTransform.ScaleY / 1.2);
+                }
             }
 
             e.Handled = true;
@@ -340,13 +360,16 @@ namespace NetEti.CustomControls
 
         private void transformAllIntoView()
         {
-            double oldScaleX = this._scaleTransform.ScaleX;
-            double oldScaleY = this._scaleTransform.ScaleY;
-            double newScaleX = oldScaleX * this._scrollViewer.ViewportWidth / (this._scrollViewer.ExtentWidth);
-            double newScaleY = oldScaleY * this._scrollViewer.ViewportHeight / (this._scrollViewer.ExtentHeight);
-            double newScale = newScaleX < newScaleY ? newScaleX : newScaleY;
-            this.SetScale(newScale, newScale);
-            this._scrollViewer.ScrollToHome();
+            if (this._scaleTransform != null && this._scrollViewer != null)
+            {
+                double oldScaleX = this._scaleTransform.ScaleX;
+                double oldScaleY = this._scaleTransform.ScaleY;
+                double newScaleX = oldScaleX * this._scrollViewer.ViewportWidth / (this._scrollViewer.ExtentWidth);
+                double newScaleY = oldScaleY * this._scrollViewer.ViewportHeight / (this._scrollViewer.ExtentHeight);
+                double newScale = newScaleX < newScaleY ? newScaleX : newScaleY;
+                this.SetScale(newScale, newScale);
+                this._scrollViewer.ScrollToHome();
+            }
         }
 
         #endregion zoom
@@ -356,17 +379,20 @@ namespace NetEti.CustomControls
         // Scrollt in der ZoomBox horizontal. Wird über Shift+Mousewheel ausgelöst.
         private void horizontalScroll(MouseWheelEventArgs e)
         {
-            if (e.Delta > 0)
+            if (this._scrollViewer != null)
             {
-                this._scrollViewer.LineLeft();
-                this._scrollViewer.LineLeft();
-                this._scrollViewer.LineLeft();
-            }
-            else
-            {
-                this._scrollViewer.LineRight();
-                this._scrollViewer.LineRight();
-                this._scrollViewer.LineRight();
+                if (e.Delta > 0)
+                {
+                    this._scrollViewer.LineLeft();
+                    this._scrollViewer.LineLeft();
+                    this._scrollViewer.LineLeft();
+                }
+                else
+                {
+                    this._scrollViewer.LineRight();
+                    this._scrollViewer.LineRight();
+                    this._scrollViewer.LineRight();
+                }
             }
             e.Handled = false; // 18.12.2022 Nagel
         }
@@ -374,17 +400,20 @@ namespace NetEti.CustomControls
         // Scrollt in der ZoomBox vertikal. Wird über Mousewheel ausgelöst.
         private void verticalScroll(MouseWheelEventArgs e)
         {
-            if (e.Delta > 0)
+            if (this._scrollViewer != null)
             {
-                this._scrollViewer.LineUp();
-                this._scrollViewer.LineUp();
-                this._scrollViewer.LineUp();
-            }
-            else
-            {
-                this._scrollViewer.LineDown();
-                this._scrollViewer.LineDown();
-                this._scrollViewer.LineDown();
+                if (e.Delta > 0)
+                {
+                    this._scrollViewer.LineUp();
+                    this._scrollViewer.LineUp();
+                    this._scrollViewer.LineUp();
+                }
+                else
+                {
+                    this._scrollViewer.LineDown();
+                    this._scrollViewer.LineDown();
+                    this._scrollViewer.LineDown();
+                }
             }
             e.Handled = false; // 18.12.2022 Nagel
         }
@@ -426,7 +455,7 @@ namespace NetEti.CustomControls
                     this.lastMousePositionOnTarget = null;
                 }
 
-                if (targetBefore.HasValue && targetNow.HasValue)
+                if (targetBefore.HasValue && targetNow.HasValue && this._scaleTransform != null && this._scrollViewer != null)
                 {
                     double dXInTargetPixels = targetNow.Value.X - targetBefore.Value.X;
                     double dYInTargetPixels = targetNow.Value.Y - targetBefore.Value.Y;
@@ -510,7 +539,7 @@ namespace NetEti.CustomControls
         {
             lastMousePositionOnTarget = Mouse.GetPosition(this._grid);
             this.SetScale(1.0, 1.0);
-            this._scrollViewer.ScrollToHome();
+            this._scrollViewer?.ScrollToHome();
             lastMousePositionOnTarget = null; // 14.10.2018 Erik Nagel+-
         }
 
