@@ -157,9 +157,9 @@ namespace NetEti.CustomControls
         /// Liefert die aktuellen Zoom-Einstellungen der ZoomBox.
         /// </summary>
         /// <returns>ScaleTransform mit horizontalem und vertikalem Vergößerungs-/Verkleinerungsfaktor (Originalgröße jeweils 1.0)</returns>
-        public ScaleTransform? GetScale()
+        public ScaleTransform GetScale()
         {
-            return this._scaleTransform;
+            return this._scaleTransform ?? new ScaleTransform(1.0, 1.0);
         }
 
         /// <summary>
