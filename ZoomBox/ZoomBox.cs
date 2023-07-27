@@ -1,7 +1,11 @@
-﻿using System.Windows;
+﻿using System;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace NetEti.CustomControls
 {
@@ -16,6 +20,8 @@ namespace NetEti.CustomControls
     /// Autor: Erik Nagel, NetEti
     ///<br></br>
     /// 23.07.2013 Erik Nagel: erstellt
+    /// 26.07.2023 Erik Nagel: Windows.DragMove bei Erhaltung der Reaktionsfähigkeit anderer Controls (Buttons)
+    ///                        implementiert (DelayedDragMove).
     /// </remarks>
     public class ZoomBox : ContentControl
     {
@@ -235,6 +241,7 @@ namespace NetEti.CustomControls
         private Point? lastMousePositionOnTarget;
         private bool _initAspectsDone;
         private double _minimalScaleFactor;
+        private Window? _mainWindow;
 
         private void initialized(object sender, System.EventArgs e)
         {
@@ -271,6 +278,8 @@ namespace NetEti.CustomControls
                 this._scrollViewer.PreviewMouseRightButtonDown += this.previewMouseRightButtonDown;
                 this._initAspectsDone = true;
             }
+            this._mainWindow = FindFirstVisualParentOfType<Window>(this);
+            this.PreviewMouseLeftButtonDown += this.previewMouseLeftButtonDown;
         }
 
         #endregion initialization
@@ -302,6 +311,39 @@ namespace NetEti.CustomControls
                     this.verticalScroll(e);
                 }
             }
+        }
+
+        /// <summary>
+        /// Linke Maustaste: 
+        ///   dient zum Ziehen des Meldungsfensters.
+        /// </summary>
+        /// <param name="sender">Element, in dem das Event zuerst auftritt.</param>
+        /// <param name="e">Weitergehende Informationen zum Event.</param>
+        private void previewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // this._mainWindow?.DragMove();
+            // Window.DragMove() blockiert Mausklicks auf Buttons in Controls in
+            // anderen Assemblies (UserControl, z.B. ZoomBox).
+            // Deshalb muss DragMove() verzögert gestartet werden, um Buttons noch
+            // die Möglichkeit zu geben, vorher zu reagieren.
+            this.DelayedDragMove();
+        }
+
+        private void DelayedDragMove()
+        {
+            Task.Run(new Action(() => {
+                Task.Delay(200).Wait();
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    try
+                    {
+                        if (System.Windows.Input.Mouse.LeftButton == MouseButtonState.Pressed)
+                        {
+                            this._mainWindow?.DragMove();
+                        }
+                    } catch (InvalidOperationException) { }
+                }), DispatcherPriority.Send);
+            }));
         }
 
         /// <summary>
@@ -544,5 +586,48 @@ namespace NetEti.CustomControls
         }
 
         #endregion reset layout
+
+        /// <summary>
+        /// Sucht im VisualTree vom FrameworkElement element aufwärts
+        /// nach dem ersten Elternelement vom Typ T mit Name == name.
+        /// </summary>
+        /// <typeparam name="T">Typ des gesuchten Elternelements.</typeparam>
+        /// <param name="element">FrameworkElement, dessen VisualTree durchsucht werden soll.</param>
+        /// <returns>Elternelement vom Typ T (und wenn angegeben, mit Name == name) oder null.</returns>
+        public static T? FindFirstVisualParentOfType<T>(FrameworkElement element) where T : FrameworkElement
+        {
+            FrameworkElement? parent = (FrameworkElement?)GetNearestParent(element);
+            while (parent != null)
+            {
+                if (parent is T)
+                {
+                    return (T)parent;
+                }
+                parent = (FrameworkElement?)GetNearestParent(parent);
+            }
+
+            return null;
+        }
+
+        private static DependencyObject? GetNearestParent(FrameworkElement child)
+        {
+            // Folgende Ansätze sind nicht ausreichend, da sie entweder an der DLL-Grenze
+            // beim Übergang aus dynamisch geladenen UserControls zum übergeordneten Control
+            // stoppen, oder aber in Resourcen-Templates definierte Stufen überspringen:
+            //     DependencyObject parent = child.Parent;
+            //     DependencyObject logicalParent = LogicalTreeHelper.GetParent(child);
+            //     DependencyObject templateParent = child.TemplatedParent;
+
+            // Das geht auch nicht, VisualParent ist protected:
+            //     parentCandidate = parent.VisualParent;
+
+            // Das ist endlich erfolgreich:
+            PropertyInfo? propertyInfo = child.GetType().GetProperty("VisualParent",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            );
+            return (DependencyObject?)(propertyInfo?.GetValue(child));
+        }
+
+
     }
 }
