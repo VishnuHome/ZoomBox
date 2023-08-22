@@ -295,6 +295,10 @@ namespace NetEti.CustomControls
         //   ansonsten wird vertikal gescrollt (Standard-Funktionalität).
         private void mouseWheelDispatcher(object sender, MouseWheelEventArgs e)
         {
+            if ((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
+            {
+                return; // Let it be free for UserControls.
+            }
             if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
             {
                 this.transform(sender, e);
@@ -321,6 +325,10 @@ namespace NetEti.CustomControls
         /// <param name="e">Weitergehende Informationen zum Event.</param>
         private void previewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if ((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
+            {
+                return; // Let it be free for UserControls.
+            }
             // this._mainWindow?.DragMove();
             // Window.DragMove() blockiert Mausklicks auf Buttons in Controls in
             // anderen Assemblies (UserControl, z.B. ZoomBox).
@@ -332,7 +340,8 @@ namespace NetEti.CustomControls
         private void DelayedDragMove()
         {
             Task.Run(new Action(() => {
-                Task.Delay(200).Wait();
+                Task.Delay(200).Wait(); // Important: if Vishnu doesn't react on mouseclicks any longer,
+                                        // set this delay to a higher value (100 won't work).
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     try
@@ -355,6 +364,10 @@ namespace NetEti.CustomControls
         /// <param name="e">Weitergehende Informationen zum Event.</param>
         private void previewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if ((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
+            {
+                return; // Let it be free for UserControls.
+            }
             if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
             {
                 this.transformAllIntoView();
@@ -436,7 +449,7 @@ namespace NetEti.CustomControls
                     this._scrollViewer.LineRight();
                 }
             }
-            e.Handled = false; // 18.12.2022 Nagel
+            // e.Handled = false; // 18.12.2022 Nagel
         }
 
         // Scrollt in der ZoomBox vertikal. Wird über Mousewheel ausgelöst.
@@ -457,7 +470,7 @@ namespace NetEti.CustomControls
                     this._scrollViewer.LineDown();
                 }
             }
-            e.Handled = false; // 18.12.2022 Nagel
+            // e.Handled = false; // 18.12.2022 Nagel
         }
 
         private void OnScrollViewerScrollChanged(object sender, ScrollChangedEventArgs e)
