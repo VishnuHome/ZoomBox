@@ -23,7 +23,7 @@ namespace NetEti.CustomControls
     /// 26.07.2023 Erik Nagel: Windows.DragMove bei Erhaltung der Reaktionsfähigkeit anderer Controls (Buttons)
     ///                        implementiert (DelayedDragMove).
     /// </remarks>
-    public class ZoomBox : ContentControl
+    public class ZoomBox : ContentControl, IDisposable
     {
         #region public members
 
@@ -241,7 +241,8 @@ namespace NetEti.CustomControls
         private Point? lastMousePositionOnTarget;
         private bool _initAspectsDone;
         private double _minimalScaleFactor;
-        private Window? _mainWindow;
+        private Window? _mainWindow = null;
+        private bool disposedValue;
 
         private void initialized(object sender, System.EventArgs e)
         {
@@ -278,8 +279,12 @@ namespace NetEti.CustomControls
                 this._scrollViewer.PreviewMouseRightButtonDown += this.previewMouseRightButtonDown;
                 this._initAspectsDone = true;
             }
-            this._mainWindow = FindFirstVisualParentOfType<Window>(this);
-            this.PreviewMouseLeftButtonDown += this.previewMouseLeftButtonDown;
+            if (this._mainWindow == null)
+            {
+                this._mainWindow = FindFirstVisualParentOfType<Window>(this);
+                this.PreviewMouseLeftButtonDown -= this.previewMouseLeftButtonDown;
+                this.PreviewMouseLeftButtonDown += this.previewMouseLeftButtonDown;
+            }
         }
 
         #endregion initialization
@@ -641,6 +646,42 @@ namespace NetEti.CustomControls
             return (DependencyObject?)(propertyInfo?.GetValue(child));
         }
 
+        /// <summary>
+        /// Abschlussarbeiten, Ressourcen freigeben.
+        /// </summary>
+        /// <param name="disposing">False, wenn vom eigenen Destruktor aufgerufen.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: Verwalteten Zustand (verwaltete Objekte) bereinigen
+                    this._mainWindow = FindFirstVisualParentOfType<Window>(this);
+                    this.PreviewMouseLeftButtonDown -= this.previewMouseLeftButtonDown;
+                }
 
+                // TODO: Nicht verwaltete Ressourcen (nicht verwaltete Objekte) freigeben und Finalizer überschreiben
+                // TODO: Große Felder auf NULL setzen
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: Finalizer nur überschreiben, wenn "Dispose(bool disposing)" Code für die Freigabe nicht verwalteter Ressourcen enthält
+        // ~ZoomBox()
+        // {
+        //     // Ändern Sie diesen Code nicht. Fügen Sie Bereinigungscode in der Methode "Dispose(bool disposing)" ein.
+        //     Dispose(disposing: false);
+        // }
+
+        /// <summary>
+        /// Öffentliche Methode zum Aufräumen.
+        /// </summary>
+        public void Dispose()
+        {
+            // Ändern Sie diesen Code nicht. Fügen Sie Bereinigungscode in der Methode "Dispose(bool disposing)" ein.
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
