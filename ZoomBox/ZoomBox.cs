@@ -330,7 +330,9 @@ namespace NetEti.CustomControls
         /// <param name="e">Weitergehende Informationen zum Event.</param>
         private void previewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
+            if (((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
+                || ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
+                || ((Keyboard.Modifiers & ModifierKeys.Shift) > 0))
             {
                 return; // Let it be free for UserControls.
             }
@@ -369,21 +371,21 @@ namespace NetEti.CustomControls
         /// <param name="e">Weitergehende Informationen zum Event.</param>
         private void previewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Alt) > 0)
+            if (((Keyboard.Modifiers & ModifierKeys.Control) > 0) || ((Keyboard.Modifiers & ModifierKeys.Shift) > 0))
             {
-                return; // Let it be free for UserControls.
-            }
-            if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
-            {
-                this.transformAllIntoView();
-                e.Handled = true;
-            }
-            else
-            {
-                if ((Keyboard.Modifiers & ModifierKeys.Shift) > 0)
+
+                if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
                 {
-                    this.reset();
+                    this.transformAllIntoView();
                     e.Handled = true;
+                }
+                else
+                {
+                    if ((Keyboard.Modifiers & ModifierKeys.Shift) > 0)
+                    {
+                        this.reset();
+                        e.Handled = true;
+                    }
                 }
             }
         }
