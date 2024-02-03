@@ -11,7 +11,7 @@
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
     <Description>Assembly mit UserControl zur Skalierung des Inhalts über Mausrad</Description>
-    <Copyright>Copyright © $(Authors) 2015-2023</Copyright>
+    <Copyright>Copyright © $(Authors) 2015-$([System.DateTime]::Now.Year)</Copyright>
     <FileVersion>8.0.0.0</FileVersion>
     <AssemblyVersion>8.0.0.0</AssemblyVersion>
     <PackageTags>NetEti Custom Control Content Zoom Mousewheel</PackageTags>
