@@ -22,6 +22,8 @@ namespace NetEti.CustomControls
     /// 23.07.2013 Erik Nagel: erstellt
     /// 26.07.2023 Erik Nagel: Windows.DragMove bei Erhaltung der Reaktionsfähigkeit anderer Controls (Buttons)
     ///                        implementiert (DelayedDragMove).
+    /// 13.02.2024 Erik Nagel: DelayedDragMove nur bei nicht sichtbaren Scrollbars.
+    /// 13.02.2024 Erik Nagel: DelayedDragMove ganz entfernt - führte zu nicht über die Maus scrollbaren UserControls.
     /// </remarks>
     public class ZoomBox : ContentControl, IDisposable
     {
@@ -336,18 +338,24 @@ namespace NetEti.CustomControls
             {
                 return; // Let it be free for UserControls.
             }
+            /* 13.02.2024 Nagel: ganz deaktiviert.
             // this._mainWindow?.DragMove();
             // Window.DragMove() blockiert Mausklicks auf Buttons in Controls in
             // anderen Assemblies (UserControl, z.B. ZoomBox).
             // Deshalb muss DragMove() verzögert gestartet werden, um Buttons noch
             // die Möglichkeit zu geben, vorher zu reagieren.
-            this.DelayedDragMove();
+            if (!this.IsHorizontalScrollbarVisible && !this.IsVerticalScrollbarVisible)
+            {
+                this.DelayedDragMove();
+            }
+            */
         }
 
+        /* 13.02.2024 Nagel: ganz deaktiviert.
         private void DelayedDragMove()
         {
             Task.Run(new Action(() => {
-                Task.Delay(200).Wait(); // Important: if Vishnu doesn't react on mouseclicks any longer,
+                Task.Delay(200).Wait(); // Important: if the application doesn't react on mouseclicks any longer,
                                         // set this delay to a higher value (100 won't work).
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -361,11 +369,12 @@ namespace NetEti.CustomControls
                 }), DispatcherPriority.Send);
             }));
         }
+        */
 
         /// <summary>
         /// Rechte Maustaste: 
         ///   zusammen mit Strg: verkleinert alles, sodass alles im Fenster sichtbar ist.
-        ///   zusammen mit Umschalt: setzt alles auf Anfang - kein Zoom, Position links oben.
+        ///   zusammen mit Shift: setzt alles auf Anfang - kein Zoom, Position links oben.
         /// </summary>
         /// <param name="sender">Element, in dem das Event zuerst auftritt.</param>
         /// <param name="e">Weitergehende Informationen zum Event.</param>
